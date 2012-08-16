@@ -1,12 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package jenkins.plugins.redmineposttask;
 
 import hudson.Extension;
 import hudson.Util;
-import hudson.model.*;
+import hudson.model.AbstractDescribableImpl;
+import hudson.model.Descriptor;
+import hudson.model.Hudson;
 import hudson.util.FormValidation;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -111,13 +109,11 @@ public class RedmineSite  extends AbstractDescribableImpl<RedmineSite> {
         }
 
         /**
-         * Checks if the user name and password are valid.
+         * Checks if the user name and apiAccessKey are valid.
          */
-        public FormValidation doValidate(@QueryParameter String userName,
-                                          @QueryParameter String url,
-                                          @QueryParameter String password,
-                                          @QueryParameter String groupVisibility,
-                                          @QueryParameter String roleVisibility)
+        public FormValidation doValidate(@QueryParameter String url,
+                                          @QueryParameter String apiAccessKey,
+                                          @QueryParameter String projectKey)
                 throws IOException {
             url = Util.fixEmpty(url);
             if (url == null) {// URL not entered yet

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package jenkins.plugins.redmineposttask;
 
 import com.taskadapter.redmineapi.RedmineException;
@@ -9,7 +5,10 @@ import com.taskadapter.redmineapi.RedmineManager;
 import com.taskadapter.redmineapi.bean.Issue;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.model.*;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.BuildListener;
+import hudson.model.Result;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
@@ -17,8 +16,6 @@ import hudson.tasks.Recorder;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.sf.json.JSONObject;
-import org.kohsuke.stapler.StaplerRequest;
 
 /**
  *
@@ -77,17 +74,18 @@ public class RedminePostTask extends Recorder {
 		return "Redmine post task";
 	}
 
-	@Override
-	public String getHelpFile() {
-		return "";
-	}
+        
+	//@Override
+	//public String getHelpFile() {
+	//	return "";
+	//}
 
-	@Override
-	public RedminePostTask newInstance(StaplerRequest req, JSONObject formData)
-			throws Descriptor.FormException {
-            
-            return new RedminePostTask();
-        }
-	}
+	//@Override
+	//public RedminePostTask newInstance(StaplerRequest req, JSONObject formData)
+	//		throws Descriptor.FormException {
+        //    
+        //    return new RedminePostTask();
+        //}
+    }
 
 }
