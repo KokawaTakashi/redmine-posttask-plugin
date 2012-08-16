@@ -1,0 +1,22 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <f:section title="Redmine Site Setting">
+      <f:entry title="URL" field="url">
+        <f:textbox />
+    </f:entry>
+    <f:entry title="API key" field="apiAccessKey">
+        <f:textbox />
+    </f:entry>
+    <f:entry title="Project key" field="projectKey">
+        <f:textbox />
+    </f:entry>
+    <f:entry>
+        <f:validateButton title="Validate Settings"
+                method="validate" with="url,apiAccessKey,projectKey" />
+    </f:entry>
+    <f:entry title="">
+        <div align="right">
+        <f:repeatableDeleteButton />
+        </div>
+    </f:entry>
+  </f:section>
+</j:jelly>

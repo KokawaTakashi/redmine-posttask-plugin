@@ -22,7 +22,7 @@ import org.kohsuke.stapler.QueryParameter;
  * Represents an external Redmine installation and configuration
  * @author KokawaTakashi
  */
-public class RedmineSite  extends AbstractDescribableImpl<RedmineSite> {
+public class RedmineSite extends AbstractDescribableImpl<RedmineSite> {
     
     /**
      * URL of Redmines.
