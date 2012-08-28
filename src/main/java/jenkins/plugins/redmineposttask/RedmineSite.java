@@ -1,28 +1,19 @@
 package jenkins.plugins.redmineposttask;
 
-import hudson.Extension;
-import hudson.Util;
-import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.util.FormValidation;
+import hudson.model.AbstractProject;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import javax.servlet.ServletException;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 
 /**
  * Represents an external Redmine installation and configuration
  * @author KokawaTakashi
  */
-public class RedmineSite extends AbstractDescribableImpl<RedmineSite> {
+public class RedmineSite {
     
     /**
      * URL of Redmines.
@@ -32,16 +23,32 @@ public class RedmineSite extends AbstractDescribableImpl<RedmineSite> {
     
     public final String apiAccessKey;
     
-    public final String projectKey;
+    public final String projectId;
     
     /**
      * Used to guard the computation of {@link #projects}
      */
     private transient Lock projectUpdateLock = new ReentrantLock();
 
+    public static RedmineSite get(final AbstractProject<?, ?> p) {
+        final RedmineProjectProperty mpp = p.getProperty(RedmineProjectProperty.class);
+        if (mpp != null) {
+            final RedmineSite site = mpp.getSite();
+            if (site != null) {
+                return site;
+            }
+        }
+
+        final RedmineSite[] sites = RedmineProjectProperty.DESCRIPTOR.getSites();
+        if (sites.length == 1) {
+            return sites[0];
+        }
+
+        return null;
+    }
     
     @DataBoundConstructor
-    public RedmineSite(URL url, String apiAccessKey, String projectKey) {
+    public RedmineSite(URL url, String apiAccessKey, String projectId) {
         if(!url.toExternalForm().endsWith("/"))
             try {
                 url = new URL(url.toExternalForm()+"/");
@@ -50,7 +57,7 @@ public class RedmineSite extends AbstractDescribableImpl<RedmineSite> {
             }
         this.url = url;
         this.apiAccessKey = apiAccessKey;
-        this.projectKey = projectKey;
+        this.projectId = projectId;
     }
     
     protected Object readResolve() {
@@ -69,6 +76,36 @@ public class RedmineSite extends AbstractDescribableImpl<RedmineSite> {
     
     
     
+    /*
+    public enum RedmineVersion {
+        V110(Messages.RemineSite_RedmineVersion_V110()),
+        V120(Messages.RemineSite_RedmineVersion_V120());
+
+        private final String displayName;
+
+        private RedmineVersion(final String displayName) {
+            this.displayName = displayName;
+        }
+
+        public static RedmineVersion getVersionSafely(final String version, final RedmineVersion def) {
+            RedmineVersion ret = def;
+            for (final RedmineVersion v : RedmineVersion.values()) {
+                if (v.name().equalsIgnoreCase(version)) {
+                    ret = v;
+                    break;
+                }
+            }
+            return ret;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
+    */
+    
+    
+    /*
     @Extension
     public static class DescriptorImpl extends Descriptor<RedmineSite> {
 
@@ -107,11 +144,12 @@ public class RedmineSite extends AbstractDescribableImpl<RedmineSite> {
                 return FormValidation.error(e.getMessage());
             }
         }
+        */
 
         /**
          * Checks if the user name and apiAccessKey are valid.
          */
-        public FormValidation doValidate(@QueryParameter String url,
+        /*public FormValidation doValidate(@QueryParameter String url,
                                           @QueryParameter String apiAccessKey,
                                           @QueryParameter String projectKey)
                 throws IOException {
@@ -124,6 +162,7 @@ public class RedmineSite extends AbstractDescribableImpl<RedmineSite> {
         }
         
     }
+*/
     
     private static final Logger LOGGER = Logger.getLogger(RedmineSite.class.getName());
 }
