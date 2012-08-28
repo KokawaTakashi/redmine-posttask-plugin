@@ -76,10 +76,10 @@ public class RedmineSite {
     
     
     
-    /*
+    
     public enum RedmineVersion {
-        V110(Messages.RemineSite_RedmineVersion_V110()),
-        V120(Messages.RemineSite_RedmineVersion_V120());
+        V110("RedmineSite.RedmineVersion.V110"),
+        V120("RedmineSite.RedmineVersion.V120");
 
         private final String displayName;
 
@@ -102,67 +102,6 @@ public class RedmineSite {
             return displayName;
         }
     }
-    */
-    
-    
-    /*
-    @Extension
-    public static class DescriptorImpl extends Descriptor<RedmineSite> {
-
-        @Override
-        public String getDisplayName() {
-            return "Redmine Site";
-        }
-        
-        public FormValidation doUrlCheck(@QueryParameter final String value)
-                throws IOException, ServletException {
-            if (!Hudson.getInstance().hasPermission(Hudson.ADMINISTER)) {
-                return FormValidation.ok();
-            }
-            return new FormValidation.URLCheck() {
-                @Override
-                protected FormValidation check() throws IOException,
-                        ServletException {
-                    String url = Util.fixEmpty(value);
-                    if (url == null) {
-                        return FormValidation.error("FormValidation Error.");
-                    }
-                    return FormValidation.ok();
-                }
-            }.check();
-        }
-
-        public FormValidation doCheckUserPattern(@QueryParameter String value) throws IOException {
-            String userPattern = Util.fixEmpty(value);
-            if (userPattern == null) {// userPattern not entered yet
-                return FormValidation.ok();
-            }
-            try {
-                Pattern.compile(userPattern);
-                return FormValidation.ok();
-            } catch (PatternSyntaxException e) {
-                return FormValidation.error(e.getMessage());
-            }
-        }
-        */
-
-        /**
-         * Checks if the user name and apiAccessKey are valid.
-         */
-        /*public FormValidation doValidate(@QueryParameter String url,
-                                          @QueryParameter String apiAccessKey,
-                                          @QueryParameter String projectKey)
-                throws IOException {
-            url = Util.fixEmpty(url);
-            if (url == null) {// URL not entered yet
-                return FormValidation.error("No URL given");
-            }
-            
-            return FormValidation.ok("Success");
-        }
-        
-    }
-*/
     
     private static final Logger LOGGER = Logger.getLogger(RedmineSite.class.getName());
 }
