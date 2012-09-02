@@ -82,6 +82,7 @@ public class RedmineProjectProperty extends JobProperty<AbstractProject<?, ?>> {
 	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
 	public static final class DescriptorImpl extends JobPropertyDescriptor {
+            
 		private final CopyOnWriteList<RedmineSite> sites = new CopyOnWriteList<RedmineSite>();
 
 		public DescriptorImpl() {
@@ -108,6 +109,10 @@ public class RedmineProjectProperty extends JobProperty<AbstractProject<?, ?>> {
 		public RedmineSite[] getSites() {
 			return sites.toArray(new RedmineSite[0]);
 		}
+                
+                void addSite(RedmineSite site) {
+                    sites.add(site);
+                }
 
 		@Override
 		public JobProperty<?> newInstance(StaplerRequest req, JSONObject formData)

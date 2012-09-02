@@ -34,6 +34,14 @@ public class RedminePostTask extends Recorder {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) 
                 throws InterruptedException, IOException {
+            
+            final RedmineSite site = RedmineSite.get(build.getProject());
+            if (site == null) {
+                listener.getLogger().println("No redmine site...");
+                build.setResult(Result.FAILURE);
+                return true;
+            }
+        
             Result result = build.getResult();
             
             listener.getLogger().println("Debug RedminePost:perform...");
