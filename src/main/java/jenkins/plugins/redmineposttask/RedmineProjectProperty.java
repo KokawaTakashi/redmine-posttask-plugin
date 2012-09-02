@@ -25,6 +25,8 @@ import org.kohsuke.stapler.StaplerRequest;
  */
 public class RedmineProjectProperty extends JobProperty<AbstractProject<?, ?>> {
     
+	@Extension
+	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
         public final String siteName;
         
         
@@ -43,14 +45,14 @@ public class RedmineProjectProperty extends JobProperty<AbstractProject<?, ?>> {
     
     	@DataBoundConstructor
 	public RedmineProjectProperty(String siteName) {
-		if (siteName == null) {
-			// defaults to the first one
-			RedmineSite[] sites = DESCRIPTOR.getSites();
-			if (sites.length > 0) {
-				siteName = sites[0].getName();
-                        }
-		}
-		this.siteName = siteName;
+            if (siteName == null) {
+                // defaults to the first one
+                RedmineSite[] sites = DESCRIPTOR.getSites();
+                if (sites.length > 0) {
+                    siteName = sites[0].getName();
+                }
+            }
+            this.siteName = siteName;
 	}
 
     
@@ -72,95 +74,95 @@ public class RedmineProjectProperty extends JobProperty<AbstractProject<?, ?>> {
             return null;
         }
         
-
+        /*
         @Override
 	public DescriptorImpl getDescriptor() {
-		return DESCRIPTOR;
+            return DESCRIPTOR;
 	}
-
-	@Extension
-	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
+        */
 
 	public static final class DescriptorImpl extends JobPropertyDescriptor {
-            
-		private final CopyOnWriteList<RedmineSite> sites = new CopyOnWriteList<RedmineSite>();
 
-		public DescriptorImpl() {
-			super(RedmineProjectProperty.class);
-			load();
-		}
+            private final CopyOnWriteList<RedmineSite> sites = new CopyOnWriteList<RedmineSite>();
 
-		@Override
-		@SuppressWarnings("unchecked")
-		public boolean isApplicable(Class<? extends Job> jobType) {
-			return AbstractProject.class.isAssignableFrom(jobType);
-		}
+            public DescriptorImpl() {
+                    super(RedmineProjectProperty.class);
+                    load();
+            }
 
-		@Override
-		public String getDisplayName() {
-			//return Messages.RedmineProjectProperty_DisplayName();
-                    return "Redmine Site setting";
-		}
+            @Override
+            @SuppressWarnings("unchecked")
+            public boolean isApplicable(Class<? extends Job> jobType) {
+                    return AbstractProject.class.isAssignableFrom(jobType);
+            }
 
-		public void setSites(RedmineSite site) {
-			sites.add(site);
-		}
+            @Override
+            public String getDisplayName() {
+                    //return Messages.RedmineProjectProperty_DisplayName();
+                return "Redmine Site setting";
+            }
 
-		public RedmineSite[] getSites() {
-			return sites.toArray(new RedmineSite[0]);
-		}
-                
-                void addSite(RedmineSite site) {
-                    sites.add(site);
+            public void setSites(RedmineSite site) {
+                sites.add(site);
+                //Hudson.getInstance().getDescriptorByType(RedminePostTask.DescriptorImpl.class).setSites(site);
+            }
+
+            public RedmineSite[] getSites() {
+                return sites.toArray(new RedmineSite[0]);
+                //return Hudson.getInstance().getDescriptorByType(RedminePostTask.DescriptorImpl.class).getSites();
+            }
+
+            void addSite(RedmineSite site) {
+                sites.add(site);
+            }
+
+            @Override
+            public JobProperty<?> newInstance(StaplerRequest req, JSONObject formData)
+                            throws Descriptor.FormException {
+                    RedmineProjectProperty jpp = req.bindParameters(
+                                    RedmineProjectProperty.class, "redmine.");
+                    if (jpp.siteName == null)
+                            jpp = null; // not configured
+                    return jpp;
+            }
+
+            @Override
+            public boolean configure(StaplerRequest req, JSONObject formData) {
+                    sites.replaceBy(req.bindParametersToList(RedmineSite.class, "m."));
+                    save();
+                    return true;
+            }
+
+            public FormValidation doCheckRequired(@QueryParameter String value) {
+                return FormValidation.validateRequired(value);
+            }
+
+            public FormValidation doCheckLogin(
+                @QueryParameter("m.url") String url,
+                @QueryParameter("m.apiAccessKey") String apiAccessKey,
+                @QueryParameter("m.projectId") String projectId) 
+                    throws IOException, ServletException {
+                // only administrator allowed
+                Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+
+                if (url == null) {
+                    return FormValidation.error("URL null error.");
                 }
 
-		@Override
-		public JobProperty<?> newInstance(StaplerRequest req, JSONObject formData)
-				throws Descriptor.FormException {
-			RedmineProjectProperty jpp = req.bindParameters(
-					RedmineProjectProperty.class, "redmine.");
-			if (jpp.siteName == null)
-				jpp = null; // not configured
-			return jpp;
-		}
-
-		@Override
-		public boolean configure(StaplerRequest req, JSONObject formData) {
-			sites.replaceBy(req.bindParametersToList(RedmineSite.class, "m."));
-			save();
-			return true;
-		}
-                
-                public FormValidation doCheckRequired(@QueryParameter String value) {
-                    return FormValidation.validateRequired(value);
+                try {
+                    URL urL = new URL(url);
+                } catch (MalformedURLException e) {
+                    return FormValidation.error("URL invalid error.");
                 }
-        
-                public FormValidation doCheckLogin(
-                    @QueryParameter("m.url") String url,
-                    @QueryParameter("m.apiAccessKey") String apiAccessKey,
-                    @QueryParameter("m.projectId") String projectId) 
-                        throws IOException, ServletException {
-                    // only administrator allowed
-                    Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
 
-                    if (url == null) {
-                        return FormValidation.error("URL null error.");
-                    }
+                //final RedmineSite site = new RedmineSite(
+                //        new URL(url), apiAccessKey, projectId);
+                //if (!site.isConnect()) {
+                //    return FormValidation.error(Messages.MantisProjectProperty_UnableToLogin());
+                //}
 
-                    try {
-                        URL urL = new URL(url);
-                    } catch (MalformedURLException e) {
-                        return FormValidation.error("URL invalid error.");
-                    }
-
-                    //final RedmineSite site = new RedmineSite(
-                    //        new URL(url), apiAccessKey, projectId);
-                    //if (!site.isConnect()) {
-                    //    return FormValidation.error(Messages.MantisProjectProperty_UnableToLogin());
-                    //}
-
-                    return FormValidation.ok("OK.");
-                }
+                return FormValidation.ok("OK.");
+            }
                 
 	}
 

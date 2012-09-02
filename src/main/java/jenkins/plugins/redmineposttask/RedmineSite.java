@@ -46,6 +46,10 @@ public class RedmineSite {
 
         return null;
     }
+    public static RedmineSite get() {
+        final RedmineSite[] sites = RedmineProjectProperty.DESCRIPTOR.getSites();
+        return sites[0];
+    }
     
     @DataBoundConstructor
     public RedmineSite(URL url, String apiAccessKey, String projectId) {

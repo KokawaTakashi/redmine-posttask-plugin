@@ -16,6 +16,7 @@ import hudson.tasks.Recorder;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  *
@@ -23,51 +24,77 @@ import java.util.logging.Logger;
  */
 public class RedminePostTask extends Recorder {
 
-    public RedminePostTask() {
-        
+    public final String siteName;
+    
+    @DataBoundConstructor
+    @SuppressWarnings("unused")
+    public RedminePostTask(String siteName) {
+        this.siteName = siteName;
     }
     
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
     }
     
+    @SuppressWarnings("unused")
+    public String getSiteName() {
+        return siteName;
+    }
+    
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) 
                 throws InterruptedException, IOException {
-            
-            final RedmineSite site = RedmineSite.get(build.getProject());
-            if (site == null) {
-                listener.getLogger().println("No redmine site...");
-                build.setResult(Result.FAILURE);
-                return true;
-            }
         
-            Result result = build.getResult();
-            
-            listener.getLogger().println("Debug RedminePost:perform...");
-            
-            String redmineHost = "http://localhost:3000/";
-            String apiAccessKey = "6dfdaa298cd1bdd896115efe1c8261cca3c33e3e";
-            
-            String projectKey = "sample";
-            
-            RedmineManager mgr = new RedmineManager(redmineHost, apiAccessKey);
-            Issue redmineIssue = new Issue();
-            
-            redmineIssue.setSubject("From Jenkins!");
-            try {
-                mgr.createIssue(projectKey, redmineIssue);
-            } catch (RedmineException ex) {
-                Logger.getLogger(RedminePostTask.class.getName()).log(Level.SEVERE, null, ex);
-                listener.getLogger().println(ex.toString());
-                return false;
-            }
-            
-            return true;
+        RedmineSite site = RedmineSite.get(build.getProject());
+        site = RedmineSite.get();
+        listener.getLogger().println("Site: " + site.url + "," + site.apiAccessKey + "," + site.projectId);
+        
+
+        Result result = build.getResult();
+
+        listener.getLogger().println("Debug RedminePost:perform...");
+
+        String redmineHost = site.url.toString();
+        String apiAccessKey = site.apiAccessKey;
+        
+        String projectKey = site.projectId;
+
+        RedmineManager mgr = new RedmineManager(redmineHost, apiAccessKey);
+        Issue redmineIssue = new Issue();
+
+        redmineIssue.setSubject("From Jenkins!");
+        try {
+            mgr.createIssue(projectKey, redmineIssue);
+        } catch (RedmineException ex) {
+            Logger.getLogger(RedminePostTask.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println(ex.toString());
+            return false;
+        }
+
+        return true;
     }
+    
+    /*
+    @Override
+    public Descriptor<Builder> getDescriptor() {
+        return DESCRIPTOR;
+    }
+    */
+
+    /**
+     * Descriptor should be singleton.
+     */
+    @Extension
+    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
+    
+    
 
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+        
+        //private final CopyOnWriteList<RedmineSite> sites = new CopyOnWriteList<RedmineSite>();
+        RedmineSite[] sites;
+        
 	public DescriptorImpl() {
 		super(RedminePostTask.class);
 		load();
@@ -82,18 +109,14 @@ public class RedminePostTask extends Recorder {
 		return "Redmine post task";
 	}
 
-        
-	//@Override
-	//public String getHelpFile() {
-	//	return "";
-	//}
+        public void setSites(RedmineSite[] sites) {
+                this.sites = sites;
+        }
 
-	//@Override
-	//public RedminePostTask newInstance(StaplerRequest req, JSONObject formData)
-	//		throws Descriptor.FormException {
-        //    
-        //    return new RedminePostTask();
-        //}
+        public RedmineSite[] getSites() {
+                return sites; //.toArray(new RedmineSite[0]);
+        }
+        
     }
 
 }
