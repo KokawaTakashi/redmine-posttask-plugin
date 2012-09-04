@@ -1,6 +1,9 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <j:set var="d" value="${instance.descriptor}" />
+  <f:entry title="Redmine site" field="sites">
+    <f:select class="setting-input" />
+  </f:entry>
   <f:entry title="Redmine Site" field="siteName">
     <f:textbox />
   </f:entry>

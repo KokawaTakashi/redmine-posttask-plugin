@@ -13,6 +13,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
+import hudson.util.CopyOnWriteList;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,16 +25,23 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class RedminePostTask extends Recorder {
 
+    public final RedmineSite site;
     public final String siteName;
     
     @DataBoundConstructor
     @SuppressWarnings("unused")
-    public RedminePostTask(String siteName) {
+    public RedminePostTask(RedmineSite site, String siteName) {
+        this.site = site;
         this.siteName = siteName;
     }
     
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
+    }
+    
+    @SuppressWarnings("unused")
+    public RedmineSite getSite() {
+        return site;
     }
     
     @SuppressWarnings("unused")
@@ -45,8 +53,8 @@ public class RedminePostTask extends Recorder {
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) 
                 throws InterruptedException, IOException {
         
-        RedmineSite site = RedmineSite.get(build.getProject());
-        site = RedmineSite.get();
+        //RedmineSite site = RedmineSite.get(build.getProject());
+        RedmineSite site = RedmineSite.get("site1");
         listener.getLogger().println("Site: " + site.url + "," + site.apiAccessKey + "," + site.projectId);
         
 
@@ -92,8 +100,8 @@ public class RedminePostTask extends Recorder {
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         
-        //private final CopyOnWriteList<RedmineSite> sites = new CopyOnWriteList<RedmineSite>();
-        RedmineSite[] sites;
+        private final CopyOnWriteList<RedmineSite> sites = new CopyOnWriteList<RedmineSite>();
+        //RedmineSite[] sites;
         
 	public DescriptorImpl() {
 		super(RedminePostTask.class);
@@ -110,11 +118,13 @@ public class RedminePostTask extends Recorder {
 	}
 
         public void setSites(RedmineSite[] sites) {
-                this.sites = sites;
+                //this.sites = sites;
         }
 
         public RedmineSite[] getSites() {
-                return sites; //.toArray(new RedmineSite[0]);
+                //return RedmineProjectProperty.DESCRIPTOR.getSites();
+                return sites.toArray(new RedmineSite[0]);
+                //return sites;
         }
         
     }

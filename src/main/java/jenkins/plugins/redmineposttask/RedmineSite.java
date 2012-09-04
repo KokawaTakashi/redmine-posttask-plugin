@@ -15,10 +15,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class RedmineSite {
     
-    /**
-     * URL of Redmines.
-     * Mandatory. Normalized to end with '/'
-     */
+    public final String name;
+
     public final URL url;
     
     public final String apiAccessKey;
@@ -28,7 +26,7 @@ public class RedmineSite {
     /**
      * Used to guard the computation of {@link #projects}
      */
-    private transient Lock projectUpdateLock = new ReentrantLock();
+   private transient Lock projectUpdateLock = new ReentrantLock();
 
     public static RedmineSite get(final AbstractProject<?, ?> p) {
         final RedmineProjectProperty mpp = p.getProperty(RedmineProjectProperty.class);
@@ -46,19 +44,28 @@ public class RedmineSite {
 
         return null;
     }
-    public static RedmineSite get() {
+    public static RedmineSite get(final String name) {
         final RedmineSite[] sites = RedmineProjectProperty.DESCRIPTOR.getSites();
-        return sites[0];
+        // find site with name
+        for (RedmineSite site : sites ) {
+            if( site.name.equals(name) ) {
+                return site;
+            }
+        }
+        
+        return null;
     }
     
     @DataBoundConstructor
-    public RedmineSite(URL url, String apiAccessKey, String projectId) {
-        if(!url.toExternalForm().endsWith("/"))
+    public RedmineSite(String name, URL url, String apiAccessKey, String projectId) {
+        if(!url.toExternalForm().endsWith("/")) {
             try {
                 url = new URL(url.toExternalForm()+"/");
             } catch (MalformedURLException e) {
                 throw new AssertionError(e); // impossible
             }
+        }
+        this.name = name;
         this.url = url;
         this.apiAccessKey = apiAccessKey;
         this.projectId = projectId;
@@ -71,7 +78,7 @@ public class RedmineSite {
 
 
     public String getName() {
-        return url.toExternalForm();
+        return name;
     }
 
     public URL getUrl() throws IOException {

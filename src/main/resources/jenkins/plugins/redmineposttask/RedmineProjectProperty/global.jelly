@@ -9,6 +9,10 @@
 
         <table width="100%">
 
+          <f:entry title="${%Name}" help="/plugin/redmine/help-name.html">
+            <f:textbox name="m.name" value="${site.name}" />
+          </f:entry>
+
           <f:entry title="${%URL}" help="/plugin/redmine/help-url.html">
             <f:textbox name="m.url" value="${site.url}" 
                        checkUrl="'descriptorByName/RedmineProjectProperty/checkRequired?value=' + encodeURIComponent(this.value)" />
