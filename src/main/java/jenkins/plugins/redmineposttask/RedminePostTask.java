@@ -5,10 +5,7 @@ import com.taskadapter.redmineapi.RedmineManager;
 import com.taskadapter.redmineapi.bean.Issue;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
-import hudson.model.Result;
+import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
@@ -96,15 +93,16 @@ public class RedminePostTask extends Recorder {
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
     
     
-
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         
-        private final CopyOnWriteList<RedmineSite> sites = new CopyOnWriteList<RedmineSite>();
+        //private final CopyOnWriteList<RedmineSite> sites = new CopyOnWriteList<RedmineSite>();
         //RedmineSite[] sites;
+        private volatile RedmineSite[] sites = new RedmineSite[0];
         
 	public DescriptorImpl() {
 		super(RedminePostTask.class);
+                sites = getSites();
 		load();
 	}
 
@@ -117,15 +115,20 @@ public class RedminePostTask extends Recorder {
 		return "Redmine post task";
 	}
 
-        public void setSites(RedmineSite[] sites) {
-                //this.sites = sites;
+        public void setSites(RedmineSite... sites) {
+                this.sites = sites;
+                save();
         }
 
         public RedmineSite[] getSites() {
-                //return RedmineProjectProperty.DESCRIPTOR.getSites();
-                return sites.toArray(new RedmineSite[0]);
+                return RedmineProjectProperty.DESCRIPTOR.getSites();
+                //return sites.toArray(new RedmineSite[0]);
                 //return sites;
         }
+        
+        //public RedmineProjectProperty.DescriptorImpl getToolDescriptor() {
+        //    return JobPropertyDescriptor.all().get(RedmineProjectProperty.DescriptorImpl.class);
+        //}
         
     }
 
