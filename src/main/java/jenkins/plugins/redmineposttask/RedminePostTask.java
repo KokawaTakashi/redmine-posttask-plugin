@@ -5,12 +5,14 @@ import com.taskadapter.redmineapi.RedmineManager;
 import com.taskadapter.redmineapi.bean.Issue;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.model.*;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.BuildListener;
+import hudson.model.Result;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
-import hudson.util.CopyOnWriteList;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,9 +52,8 @@ public class RedminePostTask extends Recorder {
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) 
                 throws InterruptedException, IOException {
         
-        //RedmineSite site = RedmineSite.get(build.getProject());
-        RedmineSite site = RedmineSite.get("site1");
-        listener.getLogger().println("Site: " + site.url + "," + site.apiAccessKey + "," + site.projectId);
+        RedmineSite site = RedmineSite.get(siteName);
+        listener.getLogger().println("Site: " + site.name + "," + site.url + "," + site.apiAccessKey + "," + site.projectId);
         
 
         Result result = build.getResult();
@@ -96,13 +97,10 @@ public class RedminePostTask extends Recorder {
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         
-        //private final CopyOnWriteList<RedmineSite> sites = new CopyOnWriteList<RedmineSite>();
-        //RedmineSite[] sites;
         private volatile RedmineSite[] sites = new RedmineSite[0];
         
 	public DescriptorImpl() {
 		super(RedminePostTask.class);
-                sites = getSites();
 		load();
 	}
 
@@ -122,14 +120,7 @@ public class RedminePostTask extends Recorder {
 
         public RedmineSite[] getSites() {
                 return RedmineProjectProperty.DESCRIPTOR.getSites();
-                //return sites.toArray(new RedmineSite[0]);
-                //return sites;
-        }
-        
-        //public RedmineProjectProperty.DescriptorImpl getToolDescriptor() {
-        //    return JobPropertyDescriptor.all().get(RedmineProjectProperty.DescriptorImpl.class);
-        //}
-        
+        }        
     }
 
 }
