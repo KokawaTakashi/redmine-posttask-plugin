@@ -24,23 +24,16 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class RedminePostTask extends Recorder {
 
-    public final RedmineSite site;
     public final String siteName;
     
     @DataBoundConstructor
     @SuppressWarnings("unused")
-    public RedminePostTask(RedmineSite site, String siteName) {
-        this.site = site;
+    public RedminePostTask(String siteName) {
         this.siteName = siteName;
     }
     
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
-    }
-    
-    @SuppressWarnings("unused")
-    public RedmineSite getSite() {
-        return site;
     }
     
     @SuppressWarnings("unused")
