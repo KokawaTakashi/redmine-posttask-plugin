@@ -1,8 +1,8 @@
-target
 .classpath
 .project
 .settings
-*.ipr
-*.iws
+build
+target
+bin
 *.iml
 work
