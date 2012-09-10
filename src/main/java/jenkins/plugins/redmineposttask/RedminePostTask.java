@@ -25,11 +25,15 @@ import org.kohsuke.stapler.DataBoundConstructor;
 public class RedminePostTask extends Recorder {
 
     public final String siteName;
+    public final String subject;
+    public final String description;
     
     @DataBoundConstructor
     @SuppressWarnings("unused")
-    public RedminePostTask(String siteName) {
+    public RedminePostTask(String siteName, String subject, String description) {
         this.siteName = siteName;
+        this.subject = subject;
+        this.description = description;
     }
     
     public BuildStepMonitor getRequiredMonitorService() {
@@ -39,6 +43,16 @@ public class RedminePostTask extends Recorder {
     @SuppressWarnings("unused")
     public String getSiteName() {
         return siteName;
+    }
+    
+    @SuppressWarnings("unused")
+    public String getSubject() {
+        return subject;
+    }
+    
+    @SuppressWarnings("unused")
+    public String getDescription() {
+        return description;
     }
     
     @Override
@@ -61,7 +75,8 @@ public class RedminePostTask extends Recorder {
         RedmineManager mgr = new RedmineManager(redmineHost, apiAccessKey);
         Issue redmineIssue = new Issue();
 
-        redmineIssue.setSubject("From Jenkins!");
+        redmineIssue.setSubject(subject);
+        redmineIssue.setDescription(description);
         try {
             mgr.createIssue(projectKey, redmineIssue);
         } catch (RedmineException ex) {

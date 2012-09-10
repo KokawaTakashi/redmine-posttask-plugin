@@ -8,6 +8,12 @@
           <f:option selected="${s.name==instance.siteName}">${s.name}</f:option>
         </j:forEach>
       </select>
+      <f:entry title="Subject" field="subject">
+        <f:textbox />
+      </f:entry>
+      <f:entry title="Description" field="description">
+          <f:textarea class="setting-input"/>
+      </f:entry>
     </f:entry>
   </j:if>
   </j:jelly>
