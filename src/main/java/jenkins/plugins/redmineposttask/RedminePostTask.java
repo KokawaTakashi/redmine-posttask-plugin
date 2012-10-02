@@ -28,15 +28,15 @@ public class RedminePostTask extends Recorder {
     public final String siteName;
     public final String subject;
     public final String description;
-    public final String execOn;
+    public final boolean alwaysPost;
     
     @DataBoundConstructor
     @SuppressWarnings("unused")
-    public RedminePostTask(String siteName, String subject, String description, String execOn) {
+    public RedminePostTask(String siteName, String subject, String description, boolean alwaysPost) {
         this.siteName = siteName;
         this.subject = subject;
         this.description = description;
-        this.execOn = execOn;
+        this.alwaysPost = alwaysPost;
     }
     
     public BuildStepMonitor getRequiredMonitorService() {
@@ -59,8 +59,8 @@ public class RedminePostTask extends Recorder {
     }
 
     @SuppressWarnings("unused")
-    public String getExecOn() {
-        return execOn;
+    public boolean getAlwaysPost() {
+        return alwaysPost;
     }
     
     @Override
@@ -69,8 +69,10 @@ public class RedminePostTask extends Recorder {
         
         Result result = build.getResult();
         // return if build success & perform when onBuildFailure
-        if( !result.isWorseOrEqualTo(Result.FAILURE) ) {
-            return true;
+        if( !alwaysPost ) {
+            if( result.isBetterOrEqualTo(Result.SUCCESS) ) {
+                return true;
+            }
         }
         boolean isSuccess = postTaskToRedmine(build, listener);
 
@@ -96,8 +98,6 @@ public class RedminePostTask extends Recorder {
             listener.getLogger().println(ex.toString());
             return false;
         }
-        
-        listener.getLogger().println("Debug RedminePost:perform...");
 
         String redmineHost = site.url.toString();
         String apiAccessKey = site.apiAccessKey;
@@ -119,6 +119,8 @@ public class RedminePostTask extends Recorder {
             listener.getLogger().println(ex.toString());
             return false;
         }
+        
+        listener.getLogger().println( "Redmine task created.");
 
         return true;
     }
