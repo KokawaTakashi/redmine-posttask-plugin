@@ -3,6 +3,7 @@ package jenkins.plugins.redmineposttask;
 import com.taskadapter.redmineapi.RedmineException;
 import com.taskadapter.redmineapi.RedmineManager;
 import com.taskadapter.redmineapi.bean.Issue;
+import com.taskadapter.redmineapi.bean.User;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -27,13 +28,15 @@ public class RedminePostTask extends Recorder {
     public final String siteName;
     public final String subject;
     public final String description;
+    public final String execOn;
     
     @DataBoundConstructor
     @SuppressWarnings("unused")
-    public RedminePostTask(String siteName, String subject, String description) {
+    public RedminePostTask(String siteName, String subject, String description, String execOn) {
         this.siteName = siteName;
         this.subject = subject;
         this.description = description;
+        this.execOn = execOn;
     }
     
     public BuildStepMonitor getRequiredMonitorService() {
@@ -54,17 +57,46 @@ public class RedminePostTask extends Recorder {
     public String getDescription() {
         return description;
     }
+
+    @SuppressWarnings("unused")
+    public String getExecOn() {
+        return execOn;
+    }
     
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) 
                 throws InterruptedException, IOException {
         
-        RedmineSite site = RedmineSite.get(siteName);
-        listener.getLogger().println("Site: " + site.name + "," + site.url + "," + site.apiAccessKey + "," + site.projectId);
-        
-
         Result result = build.getResult();
+        // return if build success & perform when onBuildFailure
+        if( !result.isWorseOrEqualTo(Result.FAILURE) ) {
+            return true;
+        }
+        boolean isSuccess = postTaskToRedmine(build, listener);
 
+        return isSuccess;
+    }
+    
+    
+    private boolean postTaskToRedmine(AbstractBuild<?, ?> build, BuildListener listener) {
+        RedmineSite site = RedmineSite.get(siteName);
+        listener.getLogger().println( "Post to Redmine Site: " + site.name );
+        //listener.getLogger().println("Site: " + site.name + "," + site.url + "," + site.apiAccessKey + "," + site.projectId);
+
+        //build.getBuildVariables();
+        
+        // Set Subject: 
+        String redmineSubject = getSubject(build);
+        // Set Description: 
+        String redmineDescription;        
+        try {
+            redmineDescription = getDescription(build);
+        } catch (IOException ex) {
+            Logger.getLogger(RedminePostTask.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println(ex.toString());
+            return false;
+        }
+        
         listener.getLogger().println("Debug RedminePost:perform...");
 
         String redmineHost = site.url.toString();
@@ -75,10 +107,13 @@ public class RedminePostTask extends Recorder {
         RedmineManager mgr = new RedmineManager(redmineHost, apiAccessKey);
         Issue redmineIssue = new Issue();
 
-        redmineIssue.setSubject(subject);
-        redmineIssue.setDescription(description);
+        redmineIssue.setSubject(redmineSubject);
+        redmineIssue.setDescription(redmineDescription);
         try {
+            User currentUser = mgr.getCurrentUser();
+            redmineIssue.setAssignee(currentUser);
             mgr.createIssue(projectKey, redmineIssue);
+            String userName = currentUser.getFullName();
         } catch (RedmineException ex) {
             Logger.getLogger(RedminePostTask.class.getName()).log(Level.SEVERE, null, ex);
             listener.getLogger().println(ex.toString());
@@ -86,6 +121,25 @@ public class RedminePostTask extends Recorder {
         }
 
         return true;
+    }
+    
+    private String getSubject(AbstractBuild<?, ?> build) {
+        if( !"".equals(subject) ) {
+            return subject;
+        }
+        // Default Subject
+        String defaultSubject = build.getProject().getName() + " " + build.getDisplayName();
+        defaultSubject += build.getResult().toString();
+        return defaultSubject;
+    }
+    
+    private String getDescription(AbstractBuild<?, ?> build) throws IOException {
+        if( !"".equals(description) ) {
+            return description;
+        }
+        // Default Description
+        String defaultDescription = build.getLog(); // MUST FIX: Don't use depricated method.
+        return defaultDescription;
     }
     
     /*
@@ -130,5 +184,6 @@ public class RedminePostTask extends Recorder {
                 return RedmineProjectProperty.DESCRIPTOR.getSites();
         }        
     }
+    
 
 }

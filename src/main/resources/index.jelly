@@ -1,6 +1,3 @@
-<!--
-  This view is used to render the installed plugins page.
--->
 <div>
-  This is a sample.
+  This plugin makes it possible to post a Redmine issue after Jenkins build step.
 </div>
