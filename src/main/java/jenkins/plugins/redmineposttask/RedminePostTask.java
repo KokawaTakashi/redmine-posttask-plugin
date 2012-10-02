@@ -131,7 +131,7 @@ public class RedminePostTask extends Recorder {
         }
         // Default Subject
         String defaultSubject = build.getProject().getName() + " " + build.getDisplayName();
-        defaultSubject += build.getResult().toString();
+        defaultSubject += " " + build.getResult().toString();
         return defaultSubject;
     }
     
