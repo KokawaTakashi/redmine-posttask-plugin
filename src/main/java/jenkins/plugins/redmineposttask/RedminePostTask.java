@@ -30,6 +30,9 @@ public class RedminePostTask extends Recorder {
     public final String description;
     public final boolean alwaysPost;
     
+    // The maximum number of log lines
+    private final int LOG_MAX_LINES = 500;
+    
     @DataBoundConstructor
     @SuppressWarnings("unused")
     public RedminePostTask(String siteName, String subject, String description, boolean alwaysPost) {
