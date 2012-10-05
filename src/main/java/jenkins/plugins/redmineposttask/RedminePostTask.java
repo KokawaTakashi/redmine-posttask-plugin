@@ -143,7 +143,11 @@ public class RedminePostTask extends Recorder {
             return description;
         }
         // Default Description
-        String defaultDescription = build.getLog(); // MUST FIX: Don't use depricated method.
+        String defaultDescription = "";
+        String[] log_lines = build.getLog(LOG_MAX_LINES);
+        foreach( String log in log_lines ) {
+            defaultDescription += log;
+        }
         return defaultDescription;
     }
     
