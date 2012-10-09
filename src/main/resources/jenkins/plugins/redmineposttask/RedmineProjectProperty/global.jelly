@@ -9,20 +9,20 @@
 
         <table width="100%">
 
-          <f:entry title="${%Name}" help="/plugin/redmine/help-name.html">
+          <f:entry title="${%Name}" field="name">
             <f:textbox name="m.name" value="${site.name}" />
           </f:entry>
 
-          <f:entry title="${%URL}" help="/plugin/redmine/help-url.html">
+          <f:entry title="${%URL}">
             <f:textbox name="m.url" value="${site.url}" 
                        checkUrl="'descriptorByName/RedmineProjectProperty/checkRequired?value=' + encodeURIComponent(this.value)" />
           </f:entry>
 
-          <f:entry title="${%API access Key}" help="/plugin/redmine/help-apikey.html">
+          <f:entry title="${%API access Key}">
             <f:textbox name="m.apiAccessKey" value="${site.apiAccessKey}" />
           </f:entry>
           
-          <f:entry title="${%Project ID}" help="/plugin/redmine/help-projectid.html">
+          <f:entry title="${%Project ID}">
             <f:textbox name="m.projectId" value="${site.projectId}" />
           </f:entry>
           <f:validateButton
