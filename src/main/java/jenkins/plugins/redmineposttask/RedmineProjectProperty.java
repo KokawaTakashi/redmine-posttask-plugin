@@ -4,6 +4,8 @@
  */
 package jenkins.plugins.redmineposttask;
 
+import com.taskadapter.redmineapi.RedmineException;
+import com.taskadapter.redmineapi.RedmineManager;
 import hudson.Extension;
 import hudson.matrix.MatrixRun;
 import hudson.model.*;
@@ -155,11 +157,12 @@ public class RedmineProjectProperty extends JobProperty<AbstractProject<?, ?>> {
                     return FormValidation.error("URL invalid error.");
                 }
 
-                //final RedmineSite site = new RedmineSite(
-                //        new URL(url), apiAccessKey, projectId);
-                //if (!site.isConnect()) {
-                //    return FormValidation.error(Messages.MantisProjectProperty_UnableToLogin());
-                //}
+                RedmineManager redmineMgr = new RedmineManager(url, apiAccessKey);
+                try {
+                    redmineMgr.getProjectByKey(projectId);
+                } catch (RedmineException ex) {
+                    return FormValidation.error(ex.toString());
+                }
 
                 return FormValidation.ok("OK.");
             }
