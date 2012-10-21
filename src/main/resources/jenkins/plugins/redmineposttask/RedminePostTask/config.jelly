@@ -1,4 +1,4 @@
- <!--
+<!--
 The MIT License
 
 Copyright (c) 2012, Takashi Kokawa
@@ -33,7 +33,7 @@ THE SOFTWARE.
         </j:forEach>
       </select>
       <f:advanced>
-        <f:entry title="Always Post" field="alwaysPost">
+        <f:entry title="Always triggered" field="alwaysTriggered">
           <f:checkbox /> 
         </f:entry>
         <f:entry title="Subject" field="subject">

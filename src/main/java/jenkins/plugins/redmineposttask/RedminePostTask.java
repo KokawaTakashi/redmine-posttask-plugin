@@ -50,18 +50,18 @@ public class RedminePostTask extends Recorder {
     public final String siteName;
     public final String subject;
     public final String description;
-    public final boolean alwaysPost;
+    public final boolean alwaysTriggered;
     
     // The maximum number of log lines
     private final int LOG_MAX_LINES = 500;
     
     @DataBoundConstructor
     @SuppressWarnings("unused")
-    public RedminePostTask(String siteName, String subject, String description, boolean alwaysPost) {
+    public RedminePostTask(String siteName, String subject, String description, boolean alwaysTriggered) {
         this.siteName = siteName;
         this.subject = subject;
         this.description = description;
-        this.alwaysPost = alwaysPost;
+        this.alwaysTriggered = alwaysTriggered;
     }
     
     public BuildStepMonitor getRequiredMonitorService() {
@@ -85,7 +85,7 @@ public class RedminePostTask extends Recorder {
 
     @SuppressWarnings("unused")
     public boolean getAlwaysPost() {
-        return alwaysPost;
+        return alwaysTriggered;
     }
     
     @Override
@@ -94,7 +94,7 @@ public class RedminePostTask extends Recorder {
         
         Result result = build.getResult();
         // return if build success & perform when onBuildFailure
-        if( !alwaysPost ) {
+        if( !alwaysTriggered ) {
             if( result.isBetterOrEqualTo(Result.SUCCESS) ) {
                 return true;
             }
