@@ -1,6 +1,7 @@
 .classpath
 .project
 .settings
+nb-configuration.xml
 build
 target
 bin
