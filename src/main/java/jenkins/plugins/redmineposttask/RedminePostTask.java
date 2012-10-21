@@ -124,7 +124,7 @@ public class RedminePostTask extends Recorder {
             return false;
         }
         
-        listener.getLogger().println( "Redmine task created.");
+        listener.getLogger().println("Redmine task created.");
 
         return true;
     }
@@ -147,7 +147,7 @@ public class RedminePostTask extends Recorder {
         String defaultDescription = "";
         List<String> log_lines = build.getLog(LOG_MAX_LINES);
         for( String log : log_lines ) {
-            defaultDescription += log;
+            defaultDescription += log + "¥r¥n";
         }
         return defaultDescription;
     }
