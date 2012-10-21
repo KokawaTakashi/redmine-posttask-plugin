@@ -2,8 +2,7 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   
   <f:section title="Redmine">
-    <f:entry title="${%Redmine sites}"
-             description="Redmine sites that projects will want to connect">
+    <f:entry title="${%Redmine sites}">
 
       <f:repeatable name="redminesite" var="site" items="${descriptor.sites}" >
 
