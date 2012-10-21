@@ -15,6 +15,7 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.List;
@@ -144,12 +145,14 @@ public class RedminePostTask extends Recorder {
             return description;
         }
         // Default Description
-        String defaultDescription = "";
+        StringBuilder defaultDescription = new StringBuilder();
         List<String> log_lines = build.getLog(LOG_MAX_LINES);
-        for( String log : log_lines ) {
-            defaultDescription += log + "¥r¥n";
+        for (Iterator<String> it = log_lines.iterator(); it.hasNext();) {
+            String log = it.next();
+            defaultDescription.append(log);
+            defaultDescription.append(System.getProperty("line.separator"));
         }
-        return defaultDescription;
+        return defaultDescription.toString();
     }
     
     /*
