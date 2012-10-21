@@ -17,6 +17,7 @@ import hudson.tasks.Recorder;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.List;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -29,6 +30,9 @@ public class RedminePostTask extends Recorder {
     public final String subject;
     public final String description;
     public final boolean alwaysPost;
+    
+    // The maximum number of log lines
+    private final int LOG_MAX_LINES = 500;
     
     @DataBoundConstructor
     @SuppressWarnings("unused")
@@ -140,7 +144,11 @@ public class RedminePostTask extends Recorder {
             return description;
         }
         // Default Description
-        String defaultDescription = build.getLog(); // MUST FIX: Don't use depricated method.
+        String defaultDescription = "";
+        List<String> log_lines = build.getLog(LOG_MAX_LINES);
+        for( String log : log_lines ) {
+            defaultDescription += log;
+        }
         return defaultDescription;
     }
     
