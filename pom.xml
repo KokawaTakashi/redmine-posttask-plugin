@@ -7,7 +7,7 @@
   </parent>
 
   <artifactId>redmine-posttask-plugin</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.2</version>
   <packaging>hpi</packaging>
 
   <properties>
@@ -53,7 +53,7 @@
     <dependency>
       <groupId>com.taskadapter</groupId>
       <artifactId>redmine-java-api</artifactId>
-      <version>1.14</version>
+      <version>1.15</version>
     </dependency>
   </dependencies>
 </project>
