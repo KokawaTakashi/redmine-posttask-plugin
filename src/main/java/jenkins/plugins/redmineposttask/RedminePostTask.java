@@ -174,20 +174,7 @@ public class RedminePostTask extends Recorder {
         }
         return defaultDescription.toString();
     }
-    
-    /*
-    @Override
-    public Descriptor<Builder> getDescriptor() {
-        return DESCRIPTOR;
-    }
-    */
-
-    /**
-     * Descriptor should be singleton.
-     */
-    @Extension
-    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
-    
+        
     
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
