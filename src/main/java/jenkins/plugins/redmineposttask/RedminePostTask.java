@@ -44,6 +44,8 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
+import hudson.tasks.junit.TestResultAction;
+import hudson.tasks.junit.CaseResult;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -53,6 +55,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class RedminePostTask extends Recorder {
 
+    private static final String gLineSeparetor;
+
     public final String siteName;
     public final String subject;
     public final String description;
@@ -60,6 +64,11 @@ public class RedminePostTask extends Recorder {
     
     // The maximum number of log lines
     private final int LOG_MAX_LINES = 500;
+    private String mAbsoluteUrl;
+
+    static {
+        gLineSeparetor = System.getProperty("line.separator");
+    }
     
     @DataBoundConstructor
     @SuppressWarnings("unused")
@@ -145,12 +154,20 @@ public class RedminePostTask extends Recorder {
         String redmineSubject = getSubject(build);
         // Set Description: 
         String redmineDescription;        
-        try {
-            redmineDescription = getDescription(build);
-        } catch (IOException ex) {
-            Logger.getLogger(RedminePostTask.class.getName()).log(Level.SEVERE, null, ex);
-            listener.getLogger().println(ex.toString());
-            return false;
+
+        // Default Description
+        if (description.equals("")) {
+            mAbsoluteUrl = build.getAbsoluteUrl();
+            redmineDescription = getResults(build);
+            try {
+                redmineDescription += getDescription(build);
+            } catch (IOException ex) {
+                Logger.getLogger(RedminePostTask.class.getName()).log(Level.SEVERE, null, ex);
+                listener.getLogger().println(ex.toString());
+                return false;
+            }
+        } else {
+            redmineDescription = description;
         }
 
         try {
@@ -177,21 +194,60 @@ public class RedminePostTask extends Recorder {
     }
     
     private String getDescription(AbstractBuild<?, ?> build) throws IOException {
-        if( !"".equals(description) ) {
-            return description;
-        }
-        // Default Description
         StringBuilder defaultDescription = new StringBuilder();
+
+        defaultDescription.append("h2. \"*Console output*\":");
+        defaultDescription.append(mAbsoluteUrl + "console");
+        defaultDescription.append(gLineSeparetor + gLineSeparetor);
+
         List<String> log_lines = build.getLog(LOG_MAX_LINES);
+        defaultDescription.append("<pre>" + gLineSeparetor);
         for (Iterator<String> it = log_lines.iterator(); it.hasNext();) {
             String log = it.next();
             defaultDescription.append(log);
-            defaultDescription.append(System.getProperty("line.separator"));
+            defaultDescription.append(gLineSeparetor);
         }
+        defaultDescription.append("</pre>" + gLineSeparetor +
+                                  gLineSeparetor);
         return defaultDescription.toString();
     }
         
     
+    private String getResult(TestResultAction result) {
+        StringBuilder description = new StringBuilder();
+
+        description.append("h2. \"" + result.getDisplayName() + "\"");
+        description.append(":" + mAbsoluteUrl + result.getUrlName());
+        description.append(gLineSeparetor + gLineSeparetor);
+
+        description.append(result.getTotalCount() + " tests and ");
+        description.append(result.getFailCount() + " failures");
+        description.append(gLineSeparetor);
+
+        for (CaseResult fail : result.getFailedTests()) {
+            description.append("* " + fail.getClassName() + "." +
+                               fail.getDisplayName() + gLineSeparetor);
+            description.append("<pre>" + gLineSeparetor);
+            description.append(fail.getErrorDetails());
+            description.append("</pre>" + gLineSeparetor);
+            description.append(gLineSeparetor);
+        }
+
+        description.append(gLineSeparetor);
+        return description.toString();
+    }
+
+    /**
+     * Create result summary of JUnit.
+     */
+    private String getResults(AbstractBuild<?, ?> build) {
+        StringBuilder description = new StringBuilder();
+        for (TestResultAction result :
+               build.getActions(TestResultAction.class))
+          description.append(getResult(result));
+        return description.toString();
+    }
+
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         
