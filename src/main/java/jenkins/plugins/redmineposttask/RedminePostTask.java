@@ -24,9 +24,15 @@
 
 package jenkins.plugins.redmineposttask;
 
+import com.taskadapter.redmineapi.ProjectManager;
+import com.taskadapter.redmineapi.bean.Project;
 import com.taskadapter.redmineapi.RedmineException;
 import com.taskadapter.redmineapi.RedmineManager;
+import com.taskadapter.redmineapi.RedmineManagerFactory;
+import com.taskadapter.redmineapi.IssueManager;
 import com.taskadapter.redmineapi.bean.Issue;
+import com.taskadapter.redmineapi.bean.IssueFactory;
+import com.taskadapter.redmineapi.UserManager;
 import com.taskadapter.redmineapi.bean.User;
 import hudson.Extension;
 import hudson.Launcher;
@@ -104,6 +110,29 @@ public class RedminePostTask extends Recorder {
         return isSuccess;
     }
     
+    private void tryPostTaskToRedmine(RedmineSite site, String redmineSubject,
+                                      String redmineDescription) throws RedmineException {
+        String redmineHost = site.url.toString();
+        String apiAccessKey = site.apiAccessKey;
+        String projectKey = site.projectId;
+
+        RedmineManager mgr = RedmineManagerFactory.createWithApiKey(redmineHost, apiAccessKey);
+
+        ProjectManager projectMgr = mgr.getProjectManager();
+        Project project = projectMgr.getProjectByKey(projectKey);
+        int projectId = project.getId().intValue();
+
+        UserManager userMgr = mgr.getUserManager();
+        User currentUser = userMgr.getCurrentUser();
+
+        Issue redmineIssue = IssueFactory.create(projectId, redmineSubject);
+        redmineIssue.setDescription(redmineDescription);
+        redmineIssue.setAssignee(currentUser);
+        IssueManager issueMgr = mgr.getIssueManager();
+        issueMgr.createIssue(redmineIssue);
+
+        String userName = currentUser.getFullName();
+    }
     
     private boolean postTaskToRedmine(AbstractBuild<?, ?> build, BuildListener listener) {
         RedmineSite site = RedmineSite.get(siteName);
@@ -124,21 +153,8 @@ public class RedminePostTask extends Recorder {
             return false;
         }
 
-        String redmineHost = site.url.toString();
-        String apiAccessKey = site.apiAccessKey;
-        
-        String projectKey = site.projectId;
-
-        RedmineManager mgr = new RedmineManager(redmineHost, apiAccessKey);
-        Issue redmineIssue = new Issue();
-
-        redmineIssue.setSubject(redmineSubject);
-        redmineIssue.setDescription(redmineDescription);
         try {
-            User currentUser = mgr.getCurrentUser();
-            redmineIssue.setAssignee(currentUser);
-            mgr.createIssue(projectKey, redmineIssue);
-            String userName = currentUser.getFullName();
+            tryPostTaskToRedmine(site, redmineSubject, redmineDescription);
         } catch (RedmineException ex) {
             Logger.getLogger(RedminePostTask.class.getName()).log(Level.SEVERE, null, ex);
             listener.getLogger().println(ex.toString());

@@ -24,8 +24,11 @@
 
 package jenkins.plugins.redmineposttask;
 
+import com.taskadapter.redmineapi.ProjectManager;
+import com.taskadapter.redmineapi.bean.Project;
 import com.taskadapter.redmineapi.RedmineException;
 import com.taskadapter.redmineapi.RedmineManager;
+import com.taskadapter.redmineapi.RedmineManagerFactory;
 import hudson.Extension;
 import hudson.matrix.MatrixRun;
 import hudson.model.*;
@@ -173,9 +176,10 @@ public class RedmineProjectProperty extends JobProperty<AbstractProject<?, ?>> {
                     return FormValidation.error("URL invalid error.");
                 }
 
-                RedmineManager redmineMgr = new RedmineManager(url, apiAccessKey);
+                RedmineManager redmineMgr = RedmineManagerFactory.createWithApiKey(url, apiAccessKey);
                 try {
-                    redmineMgr.getProjectByKey(projectId);
+                    ProjectManager projectMgr = redmineMgr.getProjectManager();
+                    projectMgr.getProjectByKey(projectId);
                 } catch (RedmineException ex) {
                     return FormValidation.error(ex.toString());
                 }
